@@ -1,4 +1,5 @@
 #include "uartCOM.h"
+#include <cstdio>
 
 #define HEADER_SIZE 2
 #define CHEKSUM_SIZE 1
@@ -38,6 +39,24 @@ bool UartCOM::Send(const message &messageOut,  message &messageIn)
 
         //TODO: wait for the answer
         setState(UART_RECEIVING);
+
+        char buf[100];
+        int bytes_read;
+
+        while(!m_servo42->readable())
+        {}
+        if (m_servo42->readable()) {
+            bytes_read = m_servo42->read(buf, sizeof(buf));
+            if (bytes_read > 0) {
+                buf[bytes_read] = '\0';
+                printf("Received: %s\n", buf);
+            }
+        }
+        else {
+            printf("COULD NOT READ ANSWER\n");
+        }
+
+
         setState(UART_READY);
     }
 
@@ -71,12 +90,12 @@ bool UartCOM::setState(const uartSM &newState)
 
     if(success)
     {
-        std::cout << "Switched from " << m_state << " to " << newState << std::endl;
+        printf("Switched from %02x to %02x\r\n", m_state, newState);
         m_state = newState;
     }
     else
     {
-        std::cout << "Could not switch from " << m_state << " to " << newState << std::endl;
+        printf("Could not switch from %02x to %02x\r\n", m_state, newState);
     }
     return success;
 }
@@ -91,6 +110,6 @@ uint8_t UartCOM::computeCheckSum(const message &message)
     }
 
     uint8_t checkSum = sum & 0xFF;
-    std::cout << "Checksum: " << checkSum << std::endl;
+    printf("Checksum: %d\r\n", checkSum);
     return checkSum;
 }
