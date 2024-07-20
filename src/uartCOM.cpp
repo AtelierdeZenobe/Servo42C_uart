@@ -1,8 +1,11 @@
 #include "uartCOM.h"
+
+#include <cstdint>
 #include <cstdio>
 
 #define HEADER_SIZE 2
-#define CHEKSUM_SIZE 1
+#define MAX_DATA_SIZE 5
+#define CHECKSUM_SIZE 1
 
 UartCOM::UartCOM()
 {
@@ -12,51 +15,74 @@ UartCOM::UartCOM()
     setState(UART_READY);
 }
 
-bool UartCOM::Send(const message &messageOut,  message &messageIn)
+bool UartCOM::Send(Message &messageOut,  Message &messageIn)
 {
     bool success = true;
-    if (messageOut.data.empty())
+    uint8_t* message;
+    size_t messageSize;
+    size_t bytesSend = 0;
+
+    if(messageOut.getMessage() != nullptr)
+    {
+        message = messageOut.getMessage();
+        messageSize = messageOut.size();
+    }
+    else
     {
         success = false;
+        setState(UART_ERROR);
+        printf("Trying to send empty message !\n");
     }
     
+    // Send
     if(success)
     {
-        //Send
-        uint8_t checksum = computeCheckSum(messageOut);
+        bytesSend = m_servo42->write(message, messageSize);
+        if(bytesSend == messageSize)
+        {
+            messageOut.display();
+        }
+        else
+        {
+            setState(UART_ERROR);
+            success = false;
+            printf("Sent %d bytes instead of %d bytes.\n", bytesSend, messageSize);
+        }
+    }
 
-        //TODO: clarify
-        //TODO: does "BufferedSerial::write()" work with vector or is it c style only ?
-        size_t commandSize = HEADER_SIZE + messageOut.data.size() + CHEKSUM_SIZE;
-        uint8_t* command = new uint8_t[commandSize];
-
-        command[0] = messageOut.slaveAddr;
-        command[1] = messageOut.functionCode;
-        std::copy(messageOut.data.begin(), messageOut.data.end(), command + 2);
-        command[commandSize - 1] = checksum;
-
-        m_servo42->write(command, sizeof(command));
-
-        //TODO: wait for the answer
+    // Receive
+    // TODO: clarify reception, async ?
+    if(success)
+    {
         setState(UART_RECEIVING);
 
-        char buf[100];
-        int bytes_read;
+        uint8_t buf[HEADER_SIZE + MAX_DATA_SIZE + CHECKSUM_SIZE];
+        int bytes_read = 0;
 
+        //TODO: avoid blocking loop.
         while(!m_servo42->readable())
         {}
-        if (m_servo42->readable()) {
+        if (m_servo42->readable())
+        {
             bytes_read = m_servo42->read(buf, sizeof(buf));
-            if (bytes_read > 0) {
+            if (bytes_read > 0)
+            {
                 buf[bytes_read] = '\0';
-                printf("Received: %s\n", buf);
+                printf("Received: ");
+                for(size_t i = 0; i < bytes_read; ++i)
+                {
+                    printf("%02x ", buf[i]);
+                }
+                printf("\n");
+            }
+            else
+            {
+                printf("Readable but no byte received.\n");
             }
         }
         else {
             printf("COULD NOT READ ANSWER\n");
         }
-
-
         setState(UART_READY);
     }
 
@@ -98,18 +124,4 @@ bool UartCOM::setState(const uartSM &newState)
         printf("Could not switch from %02x to %02x\r\n", m_state, newState);
     }
     return success;
-}
-
-uint8_t UartCOM::computeCheckSum(const message &message)
-{
-    uint8_t sum = message.slaveAddr;
-    sum += message.functionCode;
-    for(const auto &data : message.data)
-    {
-        sum += data;
-    }
-
-    uint8_t checkSum = sum & 0xFF;
-    printf("Checksum: %d\r\n", checkSum);
-    return checkSum;
 }
