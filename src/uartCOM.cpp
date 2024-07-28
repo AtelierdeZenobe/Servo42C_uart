@@ -7,9 +7,9 @@
 #define MAX_DATA_SIZE 5
 #define CHECKSUM_SIZE 1
 
-UartCOM::UartCOM()
+UartCOM::UartCOM(PinName TX, PinName RX)
 {
-    m_servo42 = new BufferedSerial(PC_6, PC_7);
+    m_servo42 = new BufferedSerial(TX, RX); // TX RX STM
     m_servo42->set_baud(9600);
     m_servo42->set_format(8, BufferedSerial::None, 1);
     setState(UART_READY);

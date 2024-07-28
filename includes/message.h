@@ -5,7 +5,14 @@
 class Message
 {
     public:
-    inline Message(){};
+    inline Message(){}; // For reception
+    /**
+    * @brief Constructor. Complete UART message to send.
+    *
+    * @param slaveAddress Motor address
+    * @param functionCode Function code
+    * @param data vector of data, can be empty.
+    */
     Message(uint8_t slaveAddress, uint8_t functionCode, std::vector<uint8_t> data);
     inline bool isCheckSum(){return m_checkSum != NULL;}
     inline uint8_t* getMessage(){return m_message.data();}
@@ -13,7 +20,7 @@ class Message
     void display();
 
     private:
-        /**
+    /**
     * @brief Compute the checksum of the message
     * @return The checksum of the message
     */

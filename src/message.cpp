@@ -1,8 +1,6 @@
 #include "message.h"
 #include <cstdint>
 
-
-
 Message::Message(uint8_t slaveAddress, uint8_t functionCode, std::vector<uint8_t> data)
         : m_slaveAddress(slaveAddress),
         m_functionCode(functionCode),
