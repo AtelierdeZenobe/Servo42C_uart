@@ -34,10 +34,12 @@ uint8_t Message::computeCheckSum()
 
 void Message::display()
 {
+    printMutex.lock();
     printf("Sent: ");
     for(const auto& d : m_message)
     {
         printf("%02x ", d);
     }
     printf("\n");
+    printMutex.unlock();
 }

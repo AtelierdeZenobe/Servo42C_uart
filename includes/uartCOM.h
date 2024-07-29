@@ -33,7 +33,7 @@ class UartCOM
     * @param timeout The timeout period.
     * @return the
     */
-    bool Send(Message &MessageOut, Message &MessageIn);
+    bool Send(Message * MessageOut, Message &MessageIn);
 
     private:
     /**
@@ -43,8 +43,7 @@ class UartCOM
     * @return Wether the operation was successful.
     */
     bool setState(const uartSM &newState);
-    
+
     uartSM m_state = UART_IDLE;
     BufferedSerial* m_servo42;
-
 };

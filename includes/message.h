@@ -1,6 +1,10 @@
+#include "mbed.h"
+
 #include <cstdint>
 #include <iostream>
 #include <vector>
+
+static Mutex printMutex;
 
 class Message
 {
