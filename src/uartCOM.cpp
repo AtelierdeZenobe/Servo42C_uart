@@ -50,7 +50,7 @@ bool UartCOM::Send(Message * messageOut,  Message &messageIn)
         success = false;
         setState(UART_ERROR);
         printMutex.lock();
-        //printf("Trying to send empty message !\n");
+        printf("Trying to send empty message !\n");
         printMutex.unlock();
     }
     
@@ -60,6 +60,7 @@ bool UartCOM::Send(Message * messageOut,  Message &messageIn)
         bytesSend = m_servo42->write(message, messageSize);
         if(bytesSend == messageSize)
         {
+            printf("Send :");
             messageOut->display();
         }
         else
@@ -90,14 +91,35 @@ bool UartCOM::Send(Message * messageOut,  Message &messageIn)
             if (bytes_read > 0)
             {
                 buf[bytes_read] = '\0';
+                std::vector<int8_t> answerBuffer;
                 printMutex.lock();
-                //printf("Received: ");
-                for(size_t i = 0; i < bytes_read; ++i)
+                //printf("Received: %d \n",bytes_read);
+                
+                //printf("%02x ", buf[0]);
+                for(size_t i = 1; i < bytes_read-1; ++i)
                 {
-                   // printf("%02x ", buf[i]);
+                   //printf("%02x ", buf[i]);
+                    answerBuffer.push_back(buf[i]);
+                }
+                //printf("%02x ", buf[bytes_read-1]);
+                for(int  i=0; i<answerBuffer.size(); ++i)
+                {
+                    //std::cout << answerBuffer[i] << std::endl;
+                    //printf("%d\n", answerBuffer[i]);
                 }
                 //printf("\n");
+                
                 printMutex.unlock();
+                
+                Message answer(buf[0],0x00,answerBuffer);
+
+
+                messageIn = answer;
+
+                printf("Received:");
+                messageIn.display();
+
+
             }
             else
             {
@@ -149,14 +171,14 @@ bool UartCOM::setState(const uartSM &newState)
     if(success)
     {
         printMutex.lock();
-        //printf("Switched from %02x to %02x\r\n", m_state, newState);
+        printf("Switched from %02x to %02x\r\n", m_state, newState);
         printMutex.unlock();
         m_state = newState;
     }
     else
     {
         printMutex.lock();
-        //printf("Could not switch from %02x to %02x\r\n", m_state, newState);
+        printf("Could not switch from %02x to %02x\r\n", m_state, newState);
         printMutex.unlock();
     }
     return success;
