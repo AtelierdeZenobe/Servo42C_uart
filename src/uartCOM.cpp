@@ -17,20 +17,6 @@ UartCOM::UartCOM(PinName TX, PinName RX)
     // Attempt to prevent serial stuck
     m_servo42->sync(); // Flush serial
     m_servo42->set_blocking(false);
-    printMutex.lock();
-    if(TX == PC_10)
-    {
-        printMutex.lock();
-        //printf("Uart initialized with PC_10.\n");
-        printMutex.unlock();
-    }
-    else
-    {
-        printMutex.lock();
-        //printf("Uart initialized with something else.\n");
-        printMutex.unlock();
-    }
-    printMutex.unlock();
 }
 
 bool UartCOM::Send(Message * messageOut,  Message &messageIn)
@@ -68,7 +54,7 @@ bool UartCOM::Send(Message * messageOut,  Message &messageIn)
             setState(UART_ERROR);
             success = false;
             printMutex.lock();
-            //printf("Sent %d bytes instead of %d bytes.\n", bytesSend, messageSize);
+            printf("Sent %d bytes instead of %d bytes.\n", bytesSend, messageSize);
             printMutex.unlock();
         }
     }
@@ -91,7 +77,7 @@ bool UartCOM::Send(Message * messageOut,  Message &messageIn)
             if (bytes_read > 0)
             {
                 buf[bytes_read] = '\0';
-                std::vector<int8_t> answerBuffer;
+                std::vector<uint8_t> answerBuffer;
                 printMutex.lock();
                 //printf("Received: %d \n",bytes_read);
                 
@@ -124,21 +110,18 @@ bool UartCOM::Send(Message * messageOut,  Message &messageIn)
             else
             {
                 printMutex.lock();
-                //printf("Readable but no byte received.\n");
+                printf("Readable but no byte received.\n");
                 printMutex.unlock();
             }
         }
         else
         {
             printMutex.lock();
-            //printf("COULD NOT READ ANSWER\n");
+            printf("COULD NOT READ ANSWER\n");
             printMutex.unlock();
         }
         setState(UART_READY);
     }
-    printMutex.lock();
-    //printf("Exiting Send()\n.");
-    printMutex.unlock();
     delete(messageOut);
     return success;
 }
