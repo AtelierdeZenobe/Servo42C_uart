@@ -1,7 +1,9 @@
 #include "message.h"
 #include <cstdint>
 
-Message::Message(uint8_t slaveAddress, uint8_t functionCode, std::vector<int8_t> data)
+#define PRINT
+
+Message::Message(uint8_t slaveAddress, uint8_t functionCode, std::vector<uint8_t> data)
         : m_slaveAddress(slaveAddress),
         m_functionCode(functionCode),
         m_data(data)
@@ -34,6 +36,7 @@ uint8_t Message::computeCheckSum()
 
 void Message::display()
 {
+#ifdef PRINT
     printMutex.lock();
     printf("Message: ");
     for(const auto& d : m_message)
@@ -42,4 +45,5 @@ void Message::display()
     }
     printf("\n");
     printMutex.unlock();
+#endif
 }

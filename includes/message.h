@@ -18,7 +18,7 @@ class Message
     * @param functionCode Function code
     * @param data vector of data, can be empty.
     */
-    Message(uint8_t slaveAddress, uint8_t functionCode, std::vector<int8_t> data);
+    Message(uint8_t slaveAddress, uint8_t functionCode, std::vector<uint8_t> data);
     inline bool isCheckSum(){return m_checkSum != NULL;}
     inline uint8_t* getMessage(){return m_message.data();}
     inline size_t size(){return m_message.size();}
@@ -40,7 +40,7 @@ class Message
     uint8_t m_slaveAddress = 0xE0;
     uint8_t m_functionCode = 0x45;
     uint8_t m_checkSum;
-    std::vector<int8_t> m_data;
+    std::vector<uint8_t> m_data;
     std::vector<uint8_t> m_message;
 
 };
