@@ -1,5 +1,6 @@
 #include "uartCOM.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <cstdio>
 
@@ -60,15 +61,19 @@ bool UartCOM::Send(Message * messageOut,  std::shared_ptr<Message>& messageIn)
     {
         setState(uartSM::UART_RECEIVING);
 
-        uint8_t buf[HEADER_SIZE + MAX_DATA_SIZE + CHECKSUM_SIZE];
+        uint8_t buf[static_cast<std::size_t>(HEADER_SIZE + MAX_DATA_SIZE + CHECKSUM_SIZE)];
         int bytes_read = 0;
 
+        // TODO: investiguer pourquoi avec ce print on a bytes_read qui passe à 3 (correct) plutot que 1
+        //std::cout << "alloc size " << HEADER_SIZE + MAX_DATA_SIZE + CHECKSUM_SIZE << std::endl;
+        // On dirait que c'est un probleme de buffer c'est surement le cout qui aide
+        std::cout << "antoher cout" << std::endl;
         //TODO: avoid blocking loop.
         while(!m_servo42->readable())
         {}
         if (m_servo42->readable())
         {
-            bytes_read = m_servo42->read(buf, sizeof(buf));
+            bytes_read = m_servo42->read(buf, static_cast<std::size_t>(HEADER_SIZE + MAX_DATA_SIZE + CHECKSUM_SIZE));
             if (bytes_read > 0)
             {
                 buf[bytes_read] = '\0';
@@ -80,8 +85,10 @@ bool UartCOM::Send(Message * messageOut,  std::shared_ptr<Message>& messageIn)
                     answerBuffer.push_back(buf[i]);
                 }
 
+                std::cout << "Size of bytes_read: " << bytes_read << std::endl;
+                std::cout << "Size of answerBuffer: " << answerBuffer.size() << std::endl;
                 messageIn = std::make_shared<Message>(buf[0],0x00,answerBuffer);
-                //messageIn->display();
+                messageIn->display();
             }
             else
             {
