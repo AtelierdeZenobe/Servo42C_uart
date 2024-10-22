@@ -12,14 +12,14 @@ UartCOM::UartCOM(PinName TX, PinName RX)
     m_servo42 = new BufferedSerial(TX, RX); // TX RX STM
     m_servo42->set_baud(9600);
     m_servo42->set_format(8, BufferedSerial::None, 1);
-    setState(UART_READY);
+    setState(uartSM::UART_READY);
     
     // Attempt to prevent serial stuck
     m_servo42->sync(); // Flush serial
     m_servo42->set_blocking(false);
 }
 
-bool UartCOM::Send(Message * messageOut,  Message &messageIn)
+bool UartCOM::Send(Message * messageOut,  std::shared_ptr<Message>& messageIn)
 {
     bool success = true;
     uint8_t* message;
@@ -34,7 +34,7 @@ bool UartCOM::Send(Message * messageOut,  Message &messageIn)
     else
     {
         success = false;
-        setState(UART_ERROR);
+        setState(uartSM::UART_ERROR);
         printMutex.lock();
         printf("Trying to send empty message !\n");
         printMutex.unlock();
@@ -46,7 +46,7 @@ bool UartCOM::Send(Message * messageOut,  Message &messageIn)
         bytesSend = m_servo42->write(message, messageSize);
         if(bytesSend != messageSize)
         {
-            setState(UART_ERROR);
+            setState(uartSM::UART_ERROR);
             success = false;
             printMutex.lock();
             printf("Sent %d bytes instead of %d bytes.\n", bytesSend, messageSize);
@@ -58,7 +58,7 @@ bool UartCOM::Send(Message * messageOut,  Message &messageIn)
     // TODO: clarify reception, async ?
     if(success)
     {
-        setState(UART_RECEIVING);
+        setState(uartSM::UART_RECEIVING);
 
         uint8_t buf[HEADER_SIZE + MAX_DATA_SIZE + CHECKSUM_SIZE];
         int bytes_read = 0;
@@ -80,8 +80,8 @@ bool UartCOM::Send(Message * messageOut,  Message &messageIn)
                     answerBuffer.push_back(buf[i]);
                 }
 
-                messageIn = Message(buf[0],0x00,answerBuffer);
-                messageIn.display();
+                messageIn = std::make_shared<Message>(buf[0],0x00,answerBuffer);
+                //messageIn->display();
             }
             else
             {
@@ -96,9 +96,11 @@ bool UartCOM::Send(Message * messageOut,  Message &messageIn)
             printf("COULD NOT READ ANSWER\n");
             printMutex.unlock();
         }
-        setState(UART_READY);
+        setState(uartSM::UART_READY);
     }
     delete(messageOut);
+    //messageIn->display();
+    setState(uartSM::UART_DONE);
     return success;
 }
 
@@ -106,22 +108,25 @@ bool UartCOM::setState(const uartSM &newState)
 {
     bool success = false;
     switch (newState) {
-        case UART_IDLE:
+        case uartSM::UART_IDLE:
             //Should never go back to Idle
             break;
-        case UART_READY:
-            if(m_state == UART_IDLE || m_state == UART_RECEIVING)
+        case uartSM::UART_READY:
+            if(m_state == uartSM::UART_IDLE || m_state == uartSM::UART_RECEIVING)
             {
                 success = true;
             }
             break;
-        case UART_RECEIVING:
-            if(m_state == UART_READY)
+        case uartSM::UART_RECEIVING:
+            if(m_state == uartSM::UART_READY)
             {
                 success = true;
             }
-        case UART_ERROR:
+        case uartSM::UART_ERROR:
             //Not handled
+            break;
+        case uartSM::UART_DONE: //TODO
+            success = true;
             break;
         default:
             break;
@@ -138,4 +143,9 @@ bool UartCOM::setState(const uartSM &newState)
         printMutex.unlock();
     }
     return success;
+}
+
+uartSM UartCOM::getState()
+{
+    return m_state;
 }

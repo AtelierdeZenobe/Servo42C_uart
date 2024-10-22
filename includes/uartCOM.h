@@ -2,16 +2,18 @@
 #include <cstdint>
 #include <iostream>
 //#include <cstdint>
+#include <memory>
 #include <vector>
 #include "mbed.h"
 
 #include "message.h"
 
-enum uartSM
+enum class uartSM : uint8_t
 {
     UART_IDLE       = 0x00,
     UART_READY      = 0x01,
     UART_RECEIVING  = 0x02,
+    UART_DONE       = 0x03, // TODO: temporary, to check timings
     UART_ERROR      = 0xFF
 };
 
@@ -34,7 +36,13 @@ class UartCOM
     * @param timeout The timeout period.
     * @return the
     */
-    bool Send(Message * MessageOut, Message &MessageIn);
+    bool Send(Message * MessageOut, std::shared_ptr<Message>& MessageIn);
+
+    /**
+    * @brief Get the uartCOM state
+    * @return the state
+    */
+    uartSM getState();
 
     private:
     /**
@@ -45,6 +53,6 @@ class UartCOM
     */
     bool setState(const uartSM &newState);
 
-    uartSM m_state = UART_IDLE;
+    uartSM m_state = uartSM::UART_IDLE;
     BufferedSerial* m_servo42;
 };

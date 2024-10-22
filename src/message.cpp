@@ -38,7 +38,7 @@ void Message::display()
 {
 #ifdef PRINT
     printMutex.lock();
-    printf("Message: ");
+    printf("Display Message: ");
     for(const auto& d : m_message)
     {
         printf("%02x ", d);
