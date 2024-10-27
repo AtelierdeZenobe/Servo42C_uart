@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <cstdio>
+#include <memory>
 
 #define HEADER_SIZE 2
 #define MAX_DATA_SIZE 5
@@ -19,7 +20,7 @@ UartCOM::UartCOM(PinName TX, PinName RX)
     m_servo42->set_blocking(false);
 }
 
-bool UartCOM::Send(MessageOut * messageOut,  MessageIn &messageIn)
+bool UartCOM::Send(std::shared_ptr<MessageOut> messageOut /*, std::shared_ptr<MessageIn>& messageIn*/)
 {
     bool success = true;
     uint8_t* message;
@@ -31,14 +32,14 @@ bool UartCOM::Send(MessageOut * messageOut,  MessageIn &messageIn)
     if(messageOut->isValid())
     {
         //TODO: state sending
-        bytesSend = m_servo42->write(messageOut->datagram, messageOut->datagram->size());
+        bytesSend = m_servo42->write(messageOut->getDatagram(), messageOut->getDatagramSize());
         if(bytesSend != messageSize)
         {
             setState(UART_ERROR);
             success = false;
-            printMutex.lock();
+            //printMutex.lock();
             printf("Sent %d bytes instead of %d bytes.\n", bytesSend, messageSize);
-            printMutex.unlock();
+            //printMutex.unlock();
             success = false;
         }
     }
@@ -64,7 +65,7 @@ bool UartCOM::Send(MessageOut * messageOut,  MessageIn &messageIn)
         {
             uint8_t buf[HEADER_SIZE + MAX_DATA_SIZE + CHECKSUM_SIZE];
             int bytes_read = m_servo42->read(buf, sizeof(buf));
-            std::vector<uint8_t> answer(buf, buf + bytes_read);
+            //std::vector<uint8_t> answer(buf, buf + bytes_read);
         }
         setState(UART_READY);
     }

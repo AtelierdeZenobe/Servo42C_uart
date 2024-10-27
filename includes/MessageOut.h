@@ -4,7 +4,7 @@
 /**
 * @brief MessageOut Class to handle instructions to send to motors.
 */
-class MessageOut : Message
+class MessageOut : public Message
 {
 public:
     /**

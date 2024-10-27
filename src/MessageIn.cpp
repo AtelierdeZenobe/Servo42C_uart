@@ -4,7 +4,7 @@ MessageIn::MessageIn(std::vector<uint8_t> datagram)
         : Message(datagram)
 {
     readDatagram();
-    if(isValid)
+    if(isValid())
     {
         setState(MessageState::READY);
     }
@@ -27,9 +27,9 @@ bool MessageIn::readDatagram()
     else
     {
         //TODO
-        m_printMutex.lock();
+        printMutex.lock();
         std::cerr << "MessageIn: datagram too short" << std::endl;
-        m_printMutex.unlock();
+        printMutex.unlock();
         success = false;
     }
 

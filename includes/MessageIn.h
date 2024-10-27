@@ -3,7 +3,7 @@
 /**
 * @brief MessageIn Class to handle motors' answers.
 */
-class MessageIn : Message
+class MessageIn : public Message
 {
 public:
     /**

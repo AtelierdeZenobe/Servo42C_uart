@@ -2,10 +2,12 @@
 #include <cstdint>
 #include <iostream>
 //#include <cstdint>
+#include <memory>
 #include <vector>
 #include "mbed.h"
 
-#include "message.h"
+#include "MessageIn.h"
+#include "MessageOut.h"
 
 enum uartSM
 {
@@ -34,7 +36,7 @@ class UartCOM
     * @param timeout The timeout period.
     * @return the
     */
-    bool Send(MessageOut * MessageOut, MessageIn &MessageIn);
+    bool Send(std::shared_ptr<MessageOut> MessageOut/*, std::shared_ptr<MessageIn>& MessageIn*/);
 
     private:
     /**

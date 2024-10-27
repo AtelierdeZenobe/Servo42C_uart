@@ -2,9 +2,13 @@
 #include "mbed.h"
 
 #include <cstdint> // uint8_t
+#include <iostream>
+#include <iomanip> // std::hex
 #include <sstream>
 #include <vector> // vector
 #include <string>
+
+static Mutex printMutex;
 
 /**
 * @brief Type for Message State Machine
@@ -23,16 +27,25 @@ enum class MessageState : uint8_t
 class Message
 {
 public:
+    /// @brief Datagram getter to c-style
+    inline uint8_t* getDatagram(){return m_datagram.data();}
+    /// @brief Datagram size getter to c-style
+    inline size_t getDatagramSize(){return m_datagram.size();}
+
+    /**
+    * @brief Check the validity of the raw message, based on checksum and datagram
+    * @return The validity of the message
+    */
+    bool isValid();
+
     /**
     * @brief Print the Message content to the console.
     */
     void display();
 
-    /// @brief Datagram getter
-    inline std::vector<uint8_t> getDatagram() const
-    {
-        return m_datagram;
-    }
+    //TODO weird public static member variable
+    /// @brief Mutex for console output
+    static Mutex m_printMutex;
 
 protected:
     /**
@@ -62,12 +75,6 @@ protected:
     */
     uint8_t computeChecksum();
 
-    /**
-    * @brief Check the validity of the raw message, based on checksum and datagram
-    * @return The validity of the message
-    */
-    bool isValid();
-
     // TODO: check the c++ standard to create a useful print function
     // I like the ostringstream with fold expression
     // Or logger with operator<< override
@@ -88,9 +95,6 @@ protected:
 
     /// @brief UART datagram to send
     std::vector<uint8_t> m_datagram;
-
-    /// @brief Mutex for console output
-    Mutex m_printMutex;
 
     /// @brief Message state
     MessageState m_state;

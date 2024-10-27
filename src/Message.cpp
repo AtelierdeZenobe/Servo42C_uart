@@ -1,5 +1,4 @@
-#include <fstream>
-#include <iostream> 
+#include <fstream> 
 #include <sstream>
 
 #include "Message.h"
@@ -7,38 +6,36 @@
 Message::Message(uint8_t slaveAddress, uint8_t functionCode, std::vector<uint8_t> data)
         : m_slaveAddress(slaveAddress),
         m_functionCode(functionCode),
-        m_data(data)
-{
-    Message();
-}
-
-Message::Message(std::vector<uint8_t> datagram)
-        : m_datagram(datagram)
-{
-    Message();
-}
-
-Message::Message() : m_state(MessageState::INIT)
+        m_data(data),
+        m_state(MessageState::INIT)
 {
     // Nothing to do
 }
 
+Message::Message(std::vector<uint8_t> datagram)
+        : m_datagram(datagram),
+        m_state(MessageState::INIT)
+{
+    //Nothing to do
+}
+
 uint8_t Message::computeChecksum()
 {
-    uint8_t sum = 0;
-    for(const auto &data : m_datagram)
+    // Don't use m_datagram ! We use computeChecksum() to build it !
+    uint8_t sum = m_slaveAddress;
+    sum += m_functionCode;
+    for(const auto &data : m_data)
     {
         sum += data;
     }
-
     uint8_t checkSum = sum & 0xFF;
-
+    m_checksum = checkSum;
     return checkSum;
 }
 
 bool Message::isValid()
 {
-    return m_checkSum == computeChecksum();
+    return m_checksum == computeChecksum();
 }
 
 bool Message::setState(const MessageState& newState)
@@ -75,24 +72,24 @@ bool Message::setState(const MessageState& newState)
         default:
         {
             //TODO: avoid printing directly
-            m_printMutex.lock();
-            std::cerr << "Message not handled" << std::endl;
-            m_printMutex.unlock();
+            printMutex.lock();
+            std::cerr << "MessageState not handled" << std::endl;
+            printMutex.unlock();
         }
     }
     // TODO: magic enum or custom one
     if(success)
     {
-        m_printMutex.lock();
-        std::cout << static_cast<uint8_t>(m_state) << "->" << static_cast<uint8_t>(newState) << std::endl;
-        m_printMutex.unlock();
+        printMutex.lock();
+        printf("%02x -> %02x\n", m_state, newState);
+        printMutex.unlock();
         m_state = newState;
     }
     else
     {
-        m_printMutex.lock();
-        std::cerr << "Invalid transition" << static_cast<uint8_t>(m_state) << "->" << static_cast<uint8_t>(newState) << std::endl;
-        m_printMutex.unlock();
+        printMutex.lock();
+        printf("Invalid transition: %02x -> %02x\n", m_state, newState);
+        printMutex.unlock();
     }
 
     return success;
@@ -100,14 +97,21 @@ bool Message::setState(const MessageState& newState)
 
 void Message::display()
 {
-    m_printMutex.lock();
+    printMutex.lock();
     if(m_state == MessageState::READY)
     {
         std::cout << "Message:" << std::endl;
-        std::cout << "\tAddress: " << m_slaveAddress << std::endl;
-        std::cout << "\tFunction code: " << m_functionCode << std::endl;
+        printf("\tAddress: %02x\n", m_slaveAddress);
+        printf("\tAddress: %02x\n", m_functionCode);
         std::cout << "\tData: ";
         for(const auto& d : m_data)
+        {
+            //TODO std::cout with hex function
+            printf("%02x ", d);
+        }
+        std::cout << std::endl;
+        std::cout << "\tDatagram: ";
+        for(const auto& d : m_datagram)
         {
             //TODO std::cout with hex function
             printf("%02x ", d);
@@ -116,15 +120,15 @@ void Message::display()
     }
     else
     {
-        std::cerr << "Cannot print message: not READY" < std::endl;
+        std::cerr << "Cannot print message: not READY" << std::endl;
     }
-    m_printMutex.unlock();
+    printMutex.unlock();
 }
 
 // TODO (unusable for now really)
 void Message::print(const std::ostringstream& oss)
 {
-    m_printMutex.lock();
+    printMutex.lock();
     std::cout << oss.str() << std::endl;
-    m_printMutex.unlock();
+    printMutex.unlock();
 }
