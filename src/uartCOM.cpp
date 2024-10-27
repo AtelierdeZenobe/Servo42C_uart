@@ -20,7 +20,7 @@ UartCOM::UartCOM(PinName TX, PinName RX)
     m_servo42->set_blocking(false);
 }
 
-bool UartCOM::Send(std::shared_ptr<MessageOut> messageOut /*, std::shared_ptr<MessageIn>& messageIn*/)
+MessageIn UartCOM::Send(std::shared_ptr<MessageOut> messageOut /*, std::shared_ptr<MessageIn>& messageIn*/)
 {
     bool success = true;
     uint8_t* message;
@@ -54,6 +54,7 @@ bool UartCOM::Send(std::shared_ptr<MessageOut> messageOut /*, std::shared_ptr<Me
     //////////
     /// Receive
     //TODO: async ?
+    std::vector<uint8_t> answer;
     if(success)
     {
         setState(UART_RECEIVING);
@@ -64,12 +65,20 @@ bool UartCOM::Send(std::shared_ptr<MessageOut> messageOut /*, std::shared_ptr<Me
         if (m_servo42->readable())
         {
             uint8_t buf[HEADER_SIZE + MAX_DATA_SIZE + CHECKSUM_SIZE];
-            int bytes_read = m_servo42->read(buf, sizeof(buf));
-            //std::vector<uint8_t> answer(buf, buf + bytes_read);
+
+            // It appears data may arrive slower than expected.
+            // TODO: encapsulate the call to read untill the expected number of bytes are read ?
+
+            thread_sleep_for(10); //This sleep somehow allows for read to receive all the data
+            int bytes_read = m_servo42->read(buf, (HEADER_SIZE + MAX_DATA_SIZE + CHECKSUM_SIZE));
+            printMutex.lock();
+            printf("Read %d bytes\n", bytes_read);
+            printMutex.unlock();
+            answer = std::vector<uint8_t>(buf, buf + bytes_read);
         }
         setState(UART_READY);
     }
-    return success;
+    return MessageIn(answer);
 }
 
 bool UartCOM::setState(const uartSM &newState)

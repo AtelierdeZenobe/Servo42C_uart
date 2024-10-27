@@ -17,7 +17,7 @@ MessageIn::MessageIn(std::vector<uint8_t> datagram)
 bool MessageIn::readDatagram()
 {
     bool success = true;
-    if(m_datagram.size() > 3)
+    if(m_datagram.size() > 2)
     {
         m_slaveAddress = m_datagram[0];
         m_functionCode = m_datagram[1];
