@@ -19,31 +19,19 @@ UartCOM::UartCOM(PinName TX, PinName RX)
     m_servo42->set_blocking(false);
 }
 
-bool UartCOM::Send(Message * messageOut,  Message &messageIn)
+bool UartCOM::Send(MessageOut * messageOut,  MessageIn &messageIn)
 {
     bool success = true;
     uint8_t* message;
     size_t messageSize;
     size_t bytesSend = 0;
 
-    if(messageOut->getMessage() != nullptr)
+    ////////
+    /// Send
+    if(messageOut->isValid())
     {
-        message = messageOut->getMessage();
-        messageSize = messageOut->size();
-    }
-    else
-    {
-        success = false;
-        setState(UART_ERROR);
-        printMutex.lock();
-        printf("Trying to send empty message !\n");
-        printMutex.unlock();
-    }
-    
-    // Send
-    if(success)
-    {
-        bytesSend = m_servo42->write(message, messageSize);
+        //TODO: state sending
+        bytesSend = m_servo42->write(messageOut->datagram, messageOut->datagram->size());
         if(bytesSend != messageSize)
         {
             setState(UART_ERROR);
@@ -51,54 +39,35 @@ bool UartCOM::Send(Message * messageOut,  Message &messageIn)
             printMutex.lock();
             printf("Sent %d bytes instead of %d bytes.\n", bytesSend, messageSize);
             printMutex.unlock();
+            success = false;
         }
     }
+    else
+    {
+        printMutex.lock();
+        std::cerr << "Cannot send: uartCOM invalid" << std::endl;
+        printMutex.unlock();
+        success = false;
+    }
 
-    // Receive
-    // TODO: clarify reception, async ?
+    //////////
+    /// Receive
+    //TODO: async ?
     if(success)
     {
         setState(UART_RECEIVING);
-
-        uint8_t buf[HEADER_SIZE + MAX_DATA_SIZE + CHECKSUM_SIZE];
-        int bytes_read = 0;
 
         //TODO: avoid blocking loop.
         while(!m_servo42->readable())
         {}
         if (m_servo42->readable())
         {
-            bytes_read = m_servo42->read(buf, sizeof(buf));
-            if (bytes_read > 0)
-            {
-                buf[bytes_read] = '\0';
-                std::vector<uint8_t> answerBuffer;
-
-                for(size_t i = 1; i < bytes_read-1; ++i)
-                {
-                   //printf("%02x ", buf[i]);
-                    answerBuffer.push_back(buf[i]);
-                }
-
-                messageIn = Message(buf[0],0x00,answerBuffer);
-                messageIn.display();
-            }
-            else
-            {
-                printMutex.lock();
-                printf("Readable but no byte received.\n");
-                printMutex.unlock();
-            }
-        }
-        else
-        {
-            printMutex.lock();
-            printf("COULD NOT READ ANSWER\n");
-            printMutex.unlock();
+            uint8_t buf[HEADER_SIZE + MAX_DATA_SIZE + CHECKSUM_SIZE];
+            int bytes_read = m_servo42->read(buf, sizeof(buf));
+            std::vector<uint8_t> answer(buf, buf + bytes_read);
         }
         setState(UART_READY);
     }
-    delete(messageOut);
     return success;
 }
 

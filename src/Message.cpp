@@ -23,6 +23,24 @@ Message::Message() : m_state(MessageState::INIT)
     // Nothing to do
 }
 
+uint8_t Message::computeChecksum()
+{
+    uint8_t sum = 0;
+    for(const auto &data : m_datagram)
+    {
+        sum += data;
+    }
+
+    uint8_t checkSum = sum & 0xFF;
+
+    return checkSum;
+}
+
+bool Message::isValid()
+{
+    return m_checkSum == computeChecksum();
+}
+
 bool Message::setState(const MessageState& newState)
 {
     bool success = false;

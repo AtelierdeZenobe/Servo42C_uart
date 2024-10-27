@@ -34,7 +34,7 @@ class UartCOM
     * @param timeout The timeout period.
     * @return the
     */
-    bool Send(Message * MessageOut, Message &MessageIn);
+    bool Send(MessageOut * MessageOut, MessageIn &MessageIn);
 
     private:
     /**

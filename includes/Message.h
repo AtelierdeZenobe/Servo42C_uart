@@ -28,6 +28,12 @@ public:
     */
     void display();
 
+    /// @brief Datagram getter
+    inline std::vector<uint8_t> getDatagram() const
+    {
+        return m_datagram;
+    }
+
 protected:
     /**
     * @brief Message Constructor for MessageOut.
@@ -46,8 +52,21 @@ protected:
     /**
     * @brief Trigger a Message SM transition.
     * @param newState new state
+    * @return Wether the transition was triggered
     */
     bool setState(const MessageState& newState);
+
+    /**
+    * @brief Compute the datagram checksum
+    * @return The checksum
+    */
+    uint8_t computeChecksum();
+
+    /**
+    * @brief Check the validity of the raw message, based on checksum and datagram
+    * @return The validity of the message
+    */
+    bool isValid();
 
     // TODO: check the c++ standard to create a useful print function
     // I like the ostringstream with fold expression
@@ -60,15 +79,15 @@ protected:
 
     /// @brief Motor's slave address
     uint8_t m_slaveAddress;
-    /// @brief The instruction
+    /// @brief Function code (instruction)
     uint8_t m_functionCode;
-    /// @brief Data associated to the instruction
+    /// @brief Data asociated to the function code
     std::vector<uint8_t> m_data;
+    /// @brief Datagram's checksum
+    uint8_t m_checksum;
 
     /// @brief UART datagram to send
     std::vector<uint8_t> m_datagram;
-    /// @brief Datagram's checksum
-    uint8_t m_checkSum;
 
     /// @brief Mutex for console output
     Mutex m_printMutex;
