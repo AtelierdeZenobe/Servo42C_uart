@@ -71,9 +71,6 @@ MessageIn UartCOM::Send(std::shared_ptr<MessageOut> messageOut)
 
             thread_sleep_for(10); //This sleep somehow allows for read to receive all the data
             int bytes_read = m_servo42->read(buf, (HEADER_SIZE + MAX_DATA_SIZE + CHECKSUM_SIZE));
-            printMutex.lock();
-            printf("Read %d bytes\n", bytes_read);
-            printMutex.unlock();
             answer = std::vector<uint8_t>(buf, buf + bytes_read);
         }
         setState(UART_READY);

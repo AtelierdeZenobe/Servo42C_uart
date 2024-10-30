@@ -81,7 +81,7 @@ bool Message::setState(const MessageState& newState)
     if(success)
     {
         printMutex.lock();
-        printf("%02x -> %02x\n", m_state, newState);
+        printf("Message transition: %02x -> %02x\n", m_state, newState);
         printMutex.unlock();
         m_state = newState;
     }
