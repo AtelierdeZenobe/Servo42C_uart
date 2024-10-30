@@ -19,9 +19,10 @@ bool MessageIn::readDatagram()
     bool success = true;
     if(m_datagram.size() > 2)
     {
-        m_slaveAddress = m_datagram[0];
-        m_functionCode = m_datagram[1];
-        m_data = std::vector<uint8_t>(m_datagram.begin() + 2, m_datagram.end() - 1);
+        auto it = m_datagram.begin();
+        m_slaveAddress = *it++;
+        m_functionCode = 0x00; // Does not influence checksum
+        m_data = std::vector<uint8_t>(it, m_datagram.end() - 1);
         m_checksum = m_datagram.back();
     }
     else

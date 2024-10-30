@@ -20,7 +20,7 @@ UartCOM::UartCOM(PinName TX, PinName RX)
     m_servo42->set_blocking(false);
 }
 
-MessageIn UartCOM::Send(std::shared_ptr<MessageOut> messageOut /*, std::shared_ptr<MessageIn>& messageIn*/)
+MessageIn UartCOM::Send(std::shared_ptr<MessageOut> messageOut)
 {
     bool success = true;
     uint8_t* message;

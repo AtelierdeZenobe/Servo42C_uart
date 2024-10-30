@@ -95,14 +95,14 @@ bool Message::setState(const MessageState& newState)
     return success;
 }
 
-void Message::display()
+void Message::display() const
 {
     printMutex.lock();
     if(m_state == MessageState::READY)
     {
         std::cout << "Message:" << std::endl;
         printf("\tAddress: %02x\n", m_slaveAddress);
-        printf("\tAddress: %02x\n", m_functionCode);
+        printf("\tFunction code: %02x\n", m_functionCode);
         std::cout << "\tData: ";
         for(const auto& d : m_data)
         {

@@ -2,11 +2,11 @@
 #include "mbed.h"
 
 #include <cstdint> // uint8_t
+#include <vector>
 #include <iostream>
 #include <iomanip> // std::hex
 #include <sstream>
-#include <vector> // vector
-#include <string>
+#include <string> 
 
 static Mutex printMutex;
 
@@ -41,7 +41,7 @@ public:
     /**
     * @brief Print the Message content to the console.
     */
-    void display();
+    void display() const;
 
     //TODO weird public static member variable
     /// @brief Mutex for console output
