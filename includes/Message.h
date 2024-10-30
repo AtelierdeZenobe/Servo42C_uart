@@ -28,9 +28,11 @@ class Message
 {
 public:
     /// @brief Datagram getter to c-style
-    inline uint8_t* getDatagram(){return m_datagram.data();}
+    inline const uint8_t* getData() const {return m_data.data();}
+    /// @brief Datagram getter to c-style
+    inline const uint8_t* getDatagram() const {return m_datagram.data();}
     /// @brief Datagram size getter to c-style
-    inline size_t getDatagramSize(){return m_datagram.size();}
+    inline const size_t getDatagramSize() const {return m_datagram.size();}
 
     /**
     * @brief Check the validity of the raw message, based on checksum and datagram
