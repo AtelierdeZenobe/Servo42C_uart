@@ -1,4 +1,4 @@
-// Uncomment to remove print
-//#define DEBUG
+// Comment to remove print
+#define DEBUG
 
 #include"log.h"
