@@ -1,5 +1,6 @@
 #pragma once
 #include "mbed.h"
+#include "common.h"
 
 #include <cstdint> // uint8_t
 #include <vector>

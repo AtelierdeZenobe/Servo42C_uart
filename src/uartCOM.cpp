@@ -38,7 +38,7 @@ MessageIn UartCOM::Send(std::shared_ptr<MessageOut> messageOut)
             setState(UART_ERROR);
             success = false;
             //printMutex.lock();
-            printf("Sent %d bytes instead of %d bytes.\n", bytesSend, messageSize);
+            LOG("Sent %d bytes instead of %d bytes.\n", bytesSend, messageSize);
             //printMutex.unlock();
             success = false;
         }
@@ -119,7 +119,7 @@ bool UartCOM::setState(const uartSM &newState)
     else
     {
         printMutex.lock();
-        printf("Could not switch from %02x to %02x\r\n", m_state, newState);
+        LOG("Could not switch from %02x to %02x\r\n", m_state, newState);
         printMutex.unlock();
     }
     return success;
