@@ -1,6 +1,6 @@
 #include "MessageOut.h"
 
-MessageOut::MessageOut(uint8_t slaveAddress, uint8_t functionCode, std::vector<uint8_t> data)
+MessageOut::MessageOut(uint8_t slaveAddress, uint8_t functionCode, const std::vector<uint8_t>& data)
         : Message(slaveAddress, functionCode, data)
 {
     buildMessage();

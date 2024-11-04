@@ -36,7 +36,7 @@ class UartCOM
     * @param timeout The timeout period.
     * @return the
     */
-    MessageIn Send(std::shared_ptr<MessageOut> MessageOut/*, std::shared_ptr<MessageIn>& MessageIn*/);
+    MessageIn Send(std::shared_ptr<MessageOut> MessageOut);
 
     private:
     /**

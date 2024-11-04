@@ -4,7 +4,6 @@
 #include <cstdint> // uint8_t
 #include <vector>
 #include <iostream>
-#include <iomanip> // std::hex
 #include <sstream>
 #include <string> 
 
@@ -56,13 +55,13 @@ protected:
     * @param functionCode Function code
     * @param data vector of data, can be empty.
     */
-    Message(uint8_t slaveAddress, uint8_t functionCode, std::vector<uint8_t> data);
+    Message(uint8_t slaveAddress, uint8_t functionCode, const std::vector<uint8_t>& data);
 
     /**
     * @brief Message Constructor for MessageIn.
     * @param datagram Raw uart data
     */
-    Message(std::vector<uint8_t> datagram);
+    Message(const std::vector<uint8_t>& datagram);
 
     /**
     * @brief Trigger a Message SM transition.

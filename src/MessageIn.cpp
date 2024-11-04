@@ -1,6 +1,6 @@
 #include "MessageIn.h"
 
-MessageIn::MessageIn(std::vector<uint8_t> datagram)
+MessageIn::MessageIn(const std::vector<uint8_t>& datagram)
         : Message(datagram)
 {
     readDatagram();

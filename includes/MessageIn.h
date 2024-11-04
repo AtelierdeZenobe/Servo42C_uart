@@ -11,7 +11,7 @@ public:
     *
     * @param datagram Raw answer data
     */
-    MessageIn(std::vector<uint8_t> datagram);
+    MessageIn(const std::vector<uint8_t>& datagram);
 
 private:
     /**

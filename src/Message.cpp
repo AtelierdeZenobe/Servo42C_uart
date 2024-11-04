@@ -3,7 +3,7 @@
 
 #include "Message.h"
 
-Message::Message(uint8_t slaveAddress, uint8_t functionCode, std::vector<uint8_t> data)
+Message::Message(uint8_t slaveAddress, uint8_t functionCode, const std::vector<uint8_t>& data)
         : m_slaveAddress(slaveAddress),
         m_functionCode(functionCode),
         m_data(data),
@@ -12,7 +12,7 @@ Message::Message(uint8_t slaveAddress, uint8_t functionCode, std::vector<uint8_t
     // Nothing to do
 }
 
-Message::Message(std::vector<uint8_t> datagram)
+Message::Message(const std::vector<uint8_t>& datagram)
         : m_datagram(datagram),
         m_state(MessageState::INIT)
 {

@@ -14,7 +14,7 @@ public:
     * @param functionCode Function code
     * @param data vector of data, can be empty.
     */
-    MessageOut(uint8_t slaveAddress, uint8_t functionCode, std::vector<uint8_t> data = {});
+    MessageOut(uint8_t slaveAddress, uint8_t functionCode, const std::vector<uint8_t>& data = {});
 
 private:
     /**
