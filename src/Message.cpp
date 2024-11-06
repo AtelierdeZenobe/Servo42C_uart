@@ -81,14 +81,14 @@ bool Message::setState(const MessageState& newState)
     if(success)
     {
         printMutex.lock();
-        printf("Message transition: %02x -> %02x\n", m_state, newState);
+        LOG("Message transition: %02x -> %02x\n", m_state, newState);
         printMutex.unlock();
         m_state = newState;
     }
     else
     {
         printMutex.lock();
-        printf("Invalid transition: %02x -> %02x\n", m_state, newState);
+        LOG("Invalid transition: %02x -> %02x\n", m_state, newState);
         printMutex.unlock();
     }
 
@@ -101,20 +101,20 @@ void Message::display() const
     if(m_state == MessageState::READY)
     {
         std::cout << "Message:" << std::endl;
-        printf("\tAddress: %02x\n", m_slaveAddress);
-        printf("\tFunction code: %02x\n", m_functionCode);
+        LOG("\tAddress: %02x\n", m_slaveAddress);
+        LOG("\tFunction code: %02x\n", m_functionCode);
         std::cout << "\tData: ";
         for(const auto& d : m_data)
         {
             //TODO std::cout with hex function
-            printf("%02x ", d);
+            LOG("%02x ", d);
         }
         std::cout << std::endl;
         std::cout << "\tDatagram: ";
         for(const auto& d : m_datagram)
         {
             //TODO std::cout with hex function
-            printf("%02x ", d);
+            LOG("%02x ", d);
         }
         std::cout << std::endl;
     }
