@@ -25,6 +25,13 @@ MessageIn UartCOM::Send(std::shared_ptr<MessageOut> messageOut)
     bool success = true;
     size_t bytesSend = 0;
 
+    if (!messageOut || !m_servo42) {
+        printMutex.lock();
+        std::cerr << "Invalid pointers" << std::endl;
+        printMutex.unlock();
+        return MessageIn({});
+    }
+
     ////////
     /// Send
     if(messageOut->isValid())
@@ -36,7 +43,7 @@ MessageIn UartCOM::Send(std::shared_ptr<MessageOut> messageOut)
             setState(UART_ERROR);
             success = false;
             printMutex.lock();
-            LOG("Sent %d bytes instead of %d bytes.\n", bytesSend, messageSize);
+            LOG("Sent %d bytes instead of %d bytes.\n", bytesSend, messageOut->getDatagramSize());
             printMutex.unlock();
             success = false;
         }
