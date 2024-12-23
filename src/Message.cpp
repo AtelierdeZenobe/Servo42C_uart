@@ -100,7 +100,7 @@ void Message::display() const
     printMutex.lock();
     if(m_state == MessageState::READY)
     {
-        std::cout << "Message:" << std::endl;
+        LOG("Message:\n");
         LOG("\tAddress: %02x\n", m_slaveAddress);
         LOG("\tFunction code: %02x\n", m_functionCode);
         LOG("\tData: ");
