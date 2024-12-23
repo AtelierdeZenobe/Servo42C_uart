@@ -103,20 +103,20 @@ void Message::display() const
         std::cout << "Message:" << std::endl;
         LOG("\tAddress: %02x\n", m_slaveAddress);
         LOG("\tFunction code: %02x\n", m_functionCode);
-        std::cout << "\tData: ";
+        LOG("\tData: ");
         for(const auto& d : m_data)
         {
             //TODO std::cout with hex function
             LOG("%02x ", d);
         }
-        std::cout << std::endl;
-        std::cout << "\tDatagram: ";
+        LOG("\n");
+        LOG("\tDatagram: ");
         for(const auto& d : m_datagram)
         {
             //TODO std::cout with hex function
             LOG("%02x ", d);
         }
-        std::cout << std::endl;
+        LOG("\n");
     }
     else
     {

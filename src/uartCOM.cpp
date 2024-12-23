@@ -23,8 +23,6 @@ UartCOM::UartCOM(PinName TX, PinName RX)
 MessageIn UartCOM::Send(std::shared_ptr<MessageOut> messageOut)
 {
     bool success = true;
-    uint8_t* message;
-    size_t messageSize;
     size_t bytesSend = 0;
 
     ////////
@@ -33,13 +31,13 @@ MessageIn UartCOM::Send(std::shared_ptr<MessageOut> messageOut)
     {
         //TODO: state sending
         bytesSend = m_servo42->write(messageOut->getDatagram(), messageOut->getDatagramSize());
-        if(bytesSend != messageSize)
+        if(bytesSend != messageOut->getDatagramSize())
         {
             setState(UART_ERROR);
             success = false;
-            //printMutex.lock();
+            printMutex.lock();
             LOG("Sent %d bytes instead of %d bytes.\n", bytesSend, messageSize);
-            //printMutex.unlock();
+            printMutex.unlock();
             success = false;
         }
     }
