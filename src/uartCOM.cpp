@@ -66,7 +66,7 @@ MessageIn UartCOM::Send(std::shared_ptr<MessageOut> messageOut)
 
         //TODO: avoid blocking loop.
         int timeout = 0;
-        while(!m_servo42->readable() && timeout++<0xFFFF)
+        while(!m_servo42->readable() && timeout++<0xFF)
         {
             //ThisThread::sleep_for(1ms);
             wait_us(50);
@@ -84,7 +84,9 @@ MessageIn UartCOM::Send(std::shared_ptr<MessageOut> messageOut)
         }
         else
         {
+            printMutex.lock();
             std::cerr << "uartCOM not readable" << std::endl;
+            printMutex.unlock();
             setState(UART_ERROR);
         }
         setState(UART_READY);
