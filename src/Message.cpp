@@ -106,7 +106,6 @@ void Message::display() const
         LOG("\tData: ");
         for(const auto& d : m_data)
         {
-            //TODO std::cout with hex function
             LOG("%02x ", d);
         }
         LOG("\n");
