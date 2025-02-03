@@ -20,17 +20,18 @@ UartCOM::UartCOM(PinName TX, PinName RX)
     m_servo42->set_blocking(false);
 }
 
-MessageIn UartCOM::Send(std::shared_ptr<MessageOut> messageOut)
+void UartCOM::Send(std::shared_ptr<MessageOut> messageOut)
 {
-    bool success = true;
     size_t bytesSend = 0;
 
     if (!messageOut || !m_servo42) {
         printMutex.lock();
         std::cerr << "Invalid pointers" << std::endl;
         printMutex.unlock();
-        return MessageIn({});
+        return;
     }
+
+    // messageOut->display();
 
     ////////
     /// Send
@@ -41,11 +42,9 @@ MessageIn UartCOM::Send(std::shared_ptr<MessageOut> messageOut)
         if(bytesSend != messageOut->getDatagramSize())
         {
             setState(UART_ERROR);
-            success = false;
             printMutex.lock();
             LOG("Sent %d bytes instead of %d bytes.\n", bytesSend, messageOut->getDatagramSize());
             printMutex.unlock();
-            success = false;
         }
     }
     else
@@ -53,45 +52,7 @@ MessageIn UartCOM::Send(std::shared_ptr<MessageOut> messageOut)
         printMutex.lock();
         std::cerr << "Cannot send: uartCOM invalid" << std::endl;
         printMutex.unlock();
-        success = false;
     }
-
-    //////////
-    /// Receive
-    //TODO: async ?
-    std::vector<uint8_t> answer;
-    if(success)
-    {
-        setState(UART_RECEIVING);
-
-        //TODO: avoid blocking loop.
-        int timeout = 0;
-        while(!m_servo42->readable() && timeout++<0xFF)
-        {
-            //ThisThread::sleep_for(1ms);
-            wait_us(50);
-        }
-        if (m_servo42->readable())
-        {
-            uint8_t buf[HEADER_SIZE + MAX_DATA_SIZE + CHECKSUM_SIZE];
-
-            // It appears data may arrive slower than expected.
-            // TODO: encapsulate the call to read untill the expected number of bytes are read ?
-
-            thread_sleep_for(10); //This sleep somehow allows for read to receive all the data
-            int bytes_read = m_servo42->read(buf, (HEADER_SIZE + MAX_DATA_SIZE + CHECKSUM_SIZE));
-            answer = std::vector<uint8_t>(buf, buf + bytes_read);
-        }
-        else
-        {
-            printMutex.lock();
-            std::cerr << "uartCOM not readable" << std::endl;
-            printMutex.unlock();
-            setState(UART_ERROR);
-        }
-        setState(UART_READY);
-    }
-    return MessageIn(answer);
 }
 
 bool UartCOM::setState(const uartSM &newState)

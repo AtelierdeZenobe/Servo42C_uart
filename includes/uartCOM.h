@@ -32,11 +32,9 @@ class UartCOM
     * @brief Send a Message over UART and wait for an answer.
     * 
     * @param MessageOut The Message to send.
-    * @param MessageIn The Message received (answer).
     * @param timeout The timeout period.
-    * @return the
     */
-    MessageIn Send(std::shared_ptr<MessageOut> MessageOut);
+    void Send(std::shared_ptr<MessageOut> MessageOut);
 
     private:
     /**
